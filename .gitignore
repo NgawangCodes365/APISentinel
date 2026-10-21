@@ -1,0 +1,33 @@
+.NET build output
+
+**/bin/
+**/obj/
+
+Visual Studio and VS Code user-specific files
+
+.vs/
+*.user
+*.suo
+
+macOS
+
+.DS_Store
+
+Environment variables and local secrets
+
+.env
+.env.*
+!.env.example
+
+Local development configuration that may contain secrets
+
+appsettings.Development.json
+
+Logs
+
+*.log
+
+Test and coverage output
+
+TestResults/
+coverage/
