@@ -1,8 +1,27 @@
+using Dapper;
+using Microsoft.Data.SqlClient;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddScoped<SqlConnection>(_ =>
+//add scoped means : So, 1 instance will work for each HTTP request.
+{
+    var connectionString = builder.Configuration
+    .GetConnectionString("DefaultConnection")
+    //this particular lines looks for the configuration key 
+    // .i..e ConnectionString: DefaultConnection
+    ?? throw new InvalidOperationException(
+    "Database connection default string not found");
+
+    return new SqlConnection(connectionString);
+    //this creates a c# object that can connect with our SQL database.
+}
+);
 
 var app = builder.Build();
 
@@ -14,28 +33,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/db-test", async (SqlConnection connection) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    await connection.OpenAsync();
+
+    var database = await connection.QuerySingleAsync<string>(
+        "SELECT DB_NAME()");
+
+    return Results.Ok(new { Database = database });
+});
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+
+
