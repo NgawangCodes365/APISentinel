@@ -1,0 +1,10 @@
+So, do we actually remember that:
+Our SQL server table called dbo.MonitoredEndpoints.
+
+This table stores Endpoints configuration
+
+So, our database stores the endpoint configuration.
+That's good but our Application must have a way actually to represent each database record as a 
+C# object.
+
+So, Basically this Models Object represents the kind of data the tables actually hold.
